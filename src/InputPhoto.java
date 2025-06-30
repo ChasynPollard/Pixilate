@@ -11,11 +11,13 @@ public class InputPhoto
     private File inputFile; // the orignal img
     private int height; // the height of the image 
     private int width; //the width
+    private int blockSize; //blockSize
 
     public InputPhoto()
     {
         this.img = null;
         this.inputFile = null;
+        this.blockSize = 1;
         this.height = 0;
         this.width = 0;
     }
@@ -27,9 +29,9 @@ public class InputPhoto
         return this.img; 
     }
 
-    public File setInputFile(String file)
+    public File setInputFile(File file)
     {
-        this.inputFile = new File(file); //sets the file
+        this.inputFile = file; //sets the file
         return this.inputFile; //returns the now set file;
     }
 
@@ -45,13 +47,33 @@ public class InputPhoto
         return this.width;
     }
 
+    public int setBlockSize(int blockSize)
+    {
+        this.blockSize = blockSize;
+        return blockSize;
+    }
+
     //getters
 
     public int getHeight()
     {
-        if(!img.equals(null))
+        if(img ==null)
         {
-            return 0;
+            if(inputFile != null)
+            {
+                try
+                {
+                    setImg(ImageIO.read(this.inputFile));
+                    return img.getHeight();
+                } catch(Exception e){
+                    System.out.println("Image did not reset properly " + e);
+                }
+                return 0;
+            }
+            else
+            {
+                return 0;
+            }
         }
         else
         {
@@ -61,9 +83,23 @@ public class InputPhoto
 
     public int getWidth()
     {
-        if(!img.equals(null))
+        if(img ==null)
         {
-            return 0;
+            if(inputFile != null)
+            {
+                try
+                {
+                    setImg(ImageIO.read(this.inputFile));
+                    return img.getWidth();
+                } catch(Exception e){
+                    System.out.println("Image did not reset properly " + e);
+                }
+                return 0;
+            }
+            else
+            {
+                return 0;
+            }
         }
         else
         {
@@ -76,10 +112,16 @@ public class InputPhoto
         return this.inputFile; 
     }
 
+    public int getBlockSize()
+    {
+        return this.blockSize;
+    }
+
     //functions 
 
     public void pixilatePhoto(int blockSize) 
     {
+        blockSize = setBlockSize(blockSize);
         //resets img in case this was ran twice
         try{
             setImg(ImageIO.read(this.inputFile));
@@ -108,7 +150,8 @@ public class InputPhoto
             for (int x = 0; x < width; x += blockSize) 
             {
                 long sumR = 0, sumG = 0, sumB = 0;
-
+                
+                int pixelSize = 0;
                 for (int dy = 0; dy < blockSize; dy++) {
                     for (int dx = 0; dx < blockSize; dx++) {
                         int pxX = x + dx;
@@ -120,16 +163,16 @@ public class InputPhoto
                             sumR += c.getRed();
                             sumG += c.getGreen();
                             sumB += c.getBlue();
+                            pixelSize++; // this makes it so it doesn't add pixels that are out of bounds
                         }
                     }
                 }
 
-                //the size of the new image
-                int numPixels = blockSize * blockSize;
+                
                 //gets the avarages 
-                int avgR = (int)(sumR / numPixels);
-                int avgG = (int)(sumG / numPixels);
-                int avgB = (int)(sumB / numPixels);
+                int avgR = (int)(sumR / pixelSize);
+                int avgG = (int)(sumG / pixelSize);
+                int avgB = (int)(sumB / pixelSize);
 
                 Color avgColor = new Color(avgR, avgG, avgB); //avarages out the color
                 pixilated.setRGB(x / blockSize, y / blockSize, avgColor.getRGB()); //sets the color
@@ -138,19 +181,19 @@ public class InputPhoto
 
         //saves the image 
         try {
-            File f = new File("lib/pixilated.png");
+            File f = new File("photos/pixilated.png");
             ImageIO.write(pixilated, "png", f);
-
+            expandPixelBlocks(blockSize);
         } catch (IOException e) {
             System.out.println("Error saving image: " + e);
         }
-        expandPixelBlocks(blockSize);
+        
     }
 
     public void expandPixelBlocks(int blockSize) {
     try {
         // Load the pixelated image (assumes it was previously saved)
-        BufferedImage smallImg = ImageIO.read(new File("lib/pixilated.png"));
+        BufferedImage smallImg = ImageIO.read(new File("photos/pixilated.png"));
         int newWidth = smallImg.getWidth() * blockSize;
         int newHeight = smallImg.getHeight() * blockSize;
 
@@ -176,7 +219,7 @@ public class InputPhoto
         }
 
         // Save the re-expanded image
-        File f = new File("lib/pixilated_expanded.png");
+        File f = new File("photos/pixilated_expanded.png");
         ImageIO.write(expanded, "png", f);
         System.out.println("Restored full-size pixilated image saved!");
     } catch (IOException e) {

@@ -19,9 +19,4 @@ My github is: https://github.com/ChasynPollard
 
 ## How This Works
 
-Right now there isn't a UI (Later there will be a UI GUI to upload and download photos)
-
-1. Add your photo to the photos folder and change the file path in Pixilate.
-2. Change blockSize in Pixilate (this determines how pixilated the image will become it is best to use a number that is a perfect square)
-3. Once you run Pixilate it will make a temporary image that is small but is written pixel by pixel.
-4. Then another function called expandPixelBlocks will keep that pixilated look but make it the orginal size of the image. This makes sure that computers doesn't blur the image.
+Run Pixilate.java and use file to import an image and use the slider and pixilate button to pixilate your image. The numbers are percentages on how much you want to pixilate the image. 
