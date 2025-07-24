@@ -19,4 +19,10 @@ My github is: https://github.com/ChasynPollard
 
 ## How This Works
 
-Run Pixilate.java and use file to import an image and use the slider and pixilate button to pixilate your image. The numbers are percentages on how much you want to pixilate the image. 
+Run Pixilate.java and use file to import an image and use the slider and pixilate button to pixilate your image.
+
+## TODO
+
+1. make this run more efficiently
+3. fix scaleing of images so it doesn't stretch
+2. make GUI prettier 

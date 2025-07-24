@@ -1,3 +1,4 @@
+import javax.imageio.ImageIO;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.ImageIcon;
@@ -15,8 +16,11 @@ import javax.swing.JSlider;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.util.Hashtable;
 import java.awt.*;
+import java.awt.image.BufferedImage;
 
 
 public class Pixilate {
@@ -24,11 +28,18 @@ public class Pixilate {
     private static JFrame frame;
     private static JPanel panel;
 
+    //widgets on the GUI
+    private static JButton pixilateButton;
+    private static JButton downloadButton;
+    private static JSlider slider;
+    
+
     private static InputPhoto inputPhoto;
     private static boolean newPhoto = false;
     private static boolean pixilatePressed;
     private static JLabel newPhotoImage = null;
     private static JLabel pixilatedPhoto = null;
+
 
     public static void main(String[] args) throws Exception 
     {
@@ -68,14 +79,17 @@ public class Pixilate {
         fileMenu.add(importImage);
 
         //buttons 
-        JButton pixilateButton = new JButton("PIXILATE");
+        //pixilateButton
+        pixilateButton = new JButton("PIXILATE");
         pixilateButton.setAlignmentX(Component.CENTER_ALIGNMENT);
+        //download button 
+        downloadButton = new JButton("DOWNLOAD");
+        downloadButton.setAlignmentX(Component.CENTER_ALIGNMENT);
 
         //slider
-        int[] sliderValues = {10, 20, 30, 40, 50, 60, 70, 80, 90, 100};
-        JSlider slider = new JSlider(0, sliderValues.length - 1);
+        int[] sliderValues = {5, 10, 15, 20, 25, 30, 35, 40, 45, 50, 55, 60, 65, 70, 75, 80, 85, 90, 95, 100, 150, 200, 1000};
+        slider = new JSlider(0, sliderValues.length - 1);
         slider.setPaintTicks(true);
-        slider.setPaintLabels(true);
         slider.setSnapToTicks(true);
 
         Hashtable<Integer, JLabel> labelTable = new Hashtable<>();
@@ -108,7 +122,7 @@ public class Pixilate {
                         inputPhoto.setInputFile(selectedFile); //sets the file to the selected file
                         newPhoto = true;
                         System.out.println(selectedFile);
-                        refresh(pixilateButton, slider);
+                        refresh();
                     }
                     else
                     {
@@ -137,9 +151,15 @@ public class Pixilate {
                     blockSize = Math.max(1, blockSize); // prevent 0 or negative sizes
 
                     inputPhoto.pixilatePhoto(blockSize);
-                    refresh(pixilateButton, slider);
-
+                    refresh();
                 }
+            }
+        });
+
+        downloadButton.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e)
+            {
+                download(); 
             }
         });
     }
@@ -170,7 +190,7 @@ public class Pixilate {
         return false;
     }
 
-    static void refresh(JButton pixilateButton, JSlider slider)
+    private static void refresh()
     {
         panel.removeAll(); //this helps with the dupication 
 
@@ -238,12 +258,14 @@ public class Pixilate {
         {
             pixilatedPhoto.setAlignmentX(Component.CENTER_ALIGNMENT);
             pixilatedPhoto.setAlignmentY(Component.CENTER_ALIGNMENT);
-            panel.add(pixilatedPhoto); 
+            panel.add(pixilatedPhoto);
+            panel.add(downloadButton);
             addedPixilatedPhoto = false;
         }
         else if(pixilatedPhoto != null && pixilatedPhoto.getParent() != null)
         {
             panel.remove(pixilatedPhoto);
+            panel.remove(downloadButton);
             pixilatedPhoto = null;
         }
 
@@ -251,6 +273,39 @@ public class Pixilate {
         //refreshes
         panel.revalidate();
         panel.repaint();
+
+    }
+
+    private static void download()
+    {
+        //this will open a panel once you press the download button and download pixilated_expanded to a folder you select 
+        JFileChooser folderChooser = new JFileChooser();
+        folderChooser.setDialogTitle("Select Folder to Save Image");
+        folderChooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
+
+        int userSelection = folderChooser.showSaveDialog(frame);
+        if (userSelection == JFileChooser.APPROVE_OPTION) {
+            BufferedImage processedImage = null;
+            try{
+                processedImage = ImageIO.read(new File("photos/pixilated_expanded.png"));
+            } catch (IOException ey) {
+                JOptionPane.showMessageDialog(frame, "Error: " + ey.getMessage());
+            }
+            
+            File selectedFolder = folderChooser.getSelectedFile();
+
+            String baseName = "user_expanded";
+            String timeStamp = new java.text.SimpleDateFormat("yyyyMMdd_HHmmss").format(new java.util.Date());
+            File fileToSave = new File(selectedFolder, baseName + "_" + timeStamp + ".png");
+
+
+            try (FileWriter writer = new FileWriter(fileToSave)) {
+                ImageIO.write(processedImage, "png", fileToSave);
+                JOptionPane.showMessageDialog(frame, "Downloaded Successfully");
+            } catch (IOException ex) {
+                JOptionPane.showMessageDialog(frame, "Error: " + ex.getMessage());
+            }
+        }
 
     }
 

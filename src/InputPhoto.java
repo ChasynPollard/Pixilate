@@ -145,7 +145,7 @@ public class InputPhoto
         BufferedImage pixilated = new BufferedImage(blocksWide, blocksHigh, BufferedImage.TYPE_INT_ARGB);
 
         //giant loop that goes through the pixels
-        for (int y = 0; y < height; y += blockSize) 
+        for (int y = 0; y < height; y += blockSize) //TODO: right now this is O(n^3) make it run faster
         {
             for (int x = 0; x < width; x += blockSize) 
             {
