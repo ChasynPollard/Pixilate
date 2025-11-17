@@ -21,8 +21,12 @@ My github is: https://github.com/ChasynPollard
 
 Run Pixilate.java and use file to import an image and use the slider and pixilate button to pixilate your image.
 
+When you pixilate it runs the pixilate function in PixelatePhoto.java
+
+When you press the download button it expands the image to its old size then saves it on your computer 
+
 ## TODO
 
-1. make this run more efficiently
+1. make this run more efficiently (threading/look into cuda java libraies)
 3. fix scaleing of images so it doesn't stretch
 2. make GUI prettier 

@@ -1,5 +1,5 @@
 import javax.imageio.ImageIO;
-import javax.swing.Box;
+
 import javax.swing.BoxLayout;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
@@ -34,7 +34,7 @@ public class Pixilate {
     private static JSlider slider;
     
 
-    private static InputPhoto inputPhoto;
+    private static PixelatePhoto inputPhoto;
     private static boolean newPhoto = false;
     private static boolean pixilatePressed;
     private static JLabel newPhotoImage = null;
@@ -43,13 +43,13 @@ public class Pixilate {
 
     public static void main(String[] args) throws Exception 
     {
-        //InputPhoto inputPhoto = new InputPhoto();
+        //PixelatePhoto inputPhoto = new PixelatePhoto();
 
         //inputPhoto.setInputFile("photos/test_image.png"); //sets the file to the test image
     
         //int boxSize = 1; //how pixilated you want your photo to become. IT IS RECOMMENDED THAT IT IS A PERFECT SQUARE
 
-        //inputPhoto.pixilatePhoto(boxSize);
+        //inputPhoto.pixilate(boxSize);
         
         gui();
     }
@@ -87,7 +87,7 @@ public class Pixilate {
         downloadButton.setAlignmentX(Component.CENTER_ALIGNMENT);
 
         //slider
-        int[] sliderValues = {5, 10, 15, 20, 25, 30, 35, 40, 45, 50, 55, 60, 65, 70, 75, 80, 85, 90, 95, 100, 150, 200, 1000};
+        int[] sliderValues = {5, 10, 15, 20, 25, 30, 35, 40, 45, 50, 55, 60, 65, 70, 75, 80, 85, 90, 95, 100};
         slider = new JSlider(0, sliderValues.length - 1);
         slider.setPaintTicks(true);
         slider.setSnapToTicks(true);
@@ -118,7 +118,7 @@ public class Pixilate {
                     System.out.println("Selected file: " + selectedFile.getAbsolutePath());
                     if(isImage(selectedFile))
                     {
-                        inputPhoto = new InputPhoto();
+                        inputPhoto = new PixelatePhoto();
                         inputPhoto.setInputFile(selectedFile); //sets the file to the selected file
                         newPhoto = true;
                         System.out.println(selectedFile);
@@ -150,7 +150,7 @@ public class Pixilate {
                     int blockSize = (int)Math.sqrt(pixelsToGroup);
                     blockSize = Math.max(1, blockSize); // prevent 0 or negative sizes
 
-                    inputPhoto.pixilatePhoto(blockSize);
+                    inputPhoto.pixilate(blockSize);
                     refresh();
                 }
             }
@@ -164,9 +164,10 @@ public class Pixilate {
         });
     }
 
-    private static Boolean isImage(File file)
+        private static Boolean isImage(File file)
     {
         //checks to see if the file is an image that can be used by Buffered Image
+        //using else if and not || so I can read it in editor  
         if(file.getName().toLowerCase().endsWith("png"))
         {
             return true;
@@ -219,7 +220,7 @@ public class Pixilate {
             addedPixilatedPhoto = true; 
             pixilatePressed = false; //resets it 
             //adds the photo to pixilated photo make get a little stretched but if you download it it'll be fine 
-            ImageIcon icon = new ImageIcon("photos/pixilated_expanded.png"); //file location 
+            ImageIcon icon = new ImageIcon("photos/pixilated.png"); //file location 
             Image scaledImage = icon.getImage().getScaledInstance((int)(panel.getHeight()*.5), (int)(panel.getWidth()*.5), Image.SCALE_SMOOTH);
             pixilatedPhoto = new JLabel(new ImageIcon(scaledImage));
         }
@@ -278,12 +279,17 @@ public class Pixilate {
 
     private static void download()
     {
-        //this will open a panel once you press the download button and download pixilated_expanded to a folder you select 
+        //expand the image for download 
+        inputPhoto.expandPixelBlocks(inputPhoto.getBlockSize());
+        
+        //pick the file
         JFileChooser folderChooser = new JFileChooser();
         folderChooser.setDialogTitle("Select Folder to Save Image");
         folderChooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
-
+        
         int userSelection = folderChooser.showSaveDialog(frame);
+
+        //now save it
         if (userSelection == JFileChooser.APPROVE_OPTION) {
             BufferedImage processedImage = null;
             try{
@@ -298,10 +304,10 @@ public class Pixilate {
             String timeStamp = new java.text.SimpleDateFormat("yyyyMMdd_HHmmss").format(new java.util.Date());
             File fileToSave = new File(selectedFolder, baseName + "_" + timeStamp + ".png");
 
-
+            //try block to save the image 
             try (FileWriter writer = new FileWriter(fileToSave)) {
                 ImageIO.write(processedImage, "png", fileToSave);
-                JOptionPane.showMessageDialog(frame, "Downloaded Successfully");
+                JOptionPane.showMessageDialog(frame, "Downloaded Successful");
             } catch (IOException ex) {
                 JOptionPane.showMessageDialog(frame, "Error: " + ex.getMessage());
             }

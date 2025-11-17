@@ -5,7 +5,7 @@ import javax.imageio.ImageIO;
 import java.awt.Color;
 //https://www.geeksforgeeks.org/java/image-processing-in-java-get-and-set-pixels/
 
-public class InputPhoto 
+public class PixelatePhoto 
 {
     private BufferedImage img;
     private File inputFile; // the orignal img
@@ -13,7 +13,7 @@ public class InputPhoto
     private int width; //the width
     private int blockSize; //blockSize
 
-    public InputPhoto()
+    public PixelatePhoto()
     {
         this.img = null;
         this.inputFile = null;
@@ -119,7 +119,7 @@ public class InputPhoto
 
     //functions 
 
-    public void pixilatePhoto(int blockSize) 
+    public void pixilate(int blockSize) 
     {
         blockSize = setBlockSize(blockSize);
         //resets img in case this was ran twice
@@ -183,47 +183,49 @@ public class InputPhoto
         try {
             File f = new File("photos/pixilated.png");
             ImageIO.write(pixilated, "png", f);
-            expandPixelBlocks(blockSize);
         } catch (IOException e) {
             System.out.println("Error saving image: " + e);
         }
-        
+        System.out.println("Pixilate!");
     }
 
-    public void expandPixelBlocks(int blockSize) {
-    try {
-        // Load the pixelated image (assumes it was previously saved)
-        BufferedImage smallImg = ImageIO.read(new File("photos/pixilated.png"));
-        int newWidth = smallImg.getWidth() * blockSize;
-        int newHeight = smallImg.getHeight() * blockSize;
+    public void expandPixelBlocks(int blockSize) 
+    {
+        try {
+            // Load the pixelated image (assumes it was previously saved)
+            BufferedImage smallImg = ImageIO.read(new File("photos/pixilated.png"));
+            int newWidth = smallImg.getWidth() * blockSize;
+            int newHeight = smallImg.getHeight() * blockSize;
 
-        BufferedImage expanded = new BufferedImage(newWidth, newHeight, BufferedImage.TYPE_INT_ARGB);
+            BufferedImage expanded = new BufferedImage(newWidth, newHeight, BufferedImage.TYPE_INT_ARGB);
 
-        for (int y = 0; y < smallImg.getHeight(); y++) 
-        {
-            for (int x = 0; x < smallImg.getWidth(); x++) 
+            for (int y = 0; y < smallImg.getHeight(); y++) 
             {
-                int rgb = smallImg.getRGB(x, y);
-
-                // fill a block of size blockSize × blockSize
-                for (int dy = 0; dy < blockSize; dy++) 
+                for (int x = 0; x < smallImg.getWidth(); x++) 
                 {
-                    for (int dx = 0; dx < blockSize; dx++) 
+                    int rgb = smallImg.getRGB(x, y);
+
+                    // fill a block of size blockSize × blockSize
+                    for (int dy = 0; dy < blockSize; dy++) 
                     {
-                        int px = x * blockSize + dx;
-                        int py = y * blockSize + dy;
-                        expanded.setRGB(px, py, rgb);
+                        for (int dx = 0; dx < blockSize; dx++) 
+                        {
+                            int px = x * blockSize + dx;
+                            int py = y * blockSize + dy;
+                            expanded.setRGB(px, py, rgb);
+                        }
                     }
                 }
             }
-        }
 
-        // Save the re-expanded image
-        File f = new File("photos/pixilated_expanded.png");
-        ImageIO.write(expanded, "png", f);
-        System.out.println("Restored full-size pixilated image saved!");
-    } catch (IOException e) {
-        System.out.println("Error processing pixelated image: " + e);
+            // Save the re-expanded image
+            File f = new File("photos/pixilated_expanded.png");
+            ImageIO.write(expanded, "png", f);
+            System.out.println("Expanded Image!");
+        } catch (IOException e) {
+            System.out.println("Error processing pixelated image: " + e);
+        }
     }
+
 }
-}
+
