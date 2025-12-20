@@ -40,6 +40,10 @@ public class Pixilate {
     private static JLabel newPhotoImage = null;
     private static JLabel pixilatedPhoto = null;
 
+    //base case checks
+    private static boolean sliderZero = false;
+    private static boolean slizerHund = true;
+
 
     public static void main(String[] args) throws Exception 
     {
@@ -87,7 +91,10 @@ public class Pixilate {
         downloadButton.setAlignmentX(Component.CENTER_ALIGNMENT);
 
         //slider
-        int[] sliderValues = {5, 10, 15, 20, 25, 30, 35, 40, 45, 50, 55, 60, 65, 70, 75, 80, 85, 90, 95, 100};
+        int[] sliderValues = 
+        {
+            0, 1, 2, 3, 4, 5, 9, 10, 15, 17, 20, 25, 30, 35, 40, 45, 50, 55, 60, 65, 70, 75, 80, 85, 90, 95, 100, 
+        };
         slider = new JSlider(0, sliderValues.length - 1);
         slider.setPaintTicks(true);
         slider.setSnapToTicks(true);
@@ -139,18 +146,33 @@ public class Pixilate {
 
 
         pixilateButton.addActionListener(new ActionListener() {
+
             public void actionPerformed(ActionEvent e)
             {
                 if(inputPhoto.getInputFile() != null)
                 {
+                    System.out.println("SliderValue: " + slider.getValue());
                     pixilatePressed = true;
-                    int totalArea = inputPhoto.getWidth() * inputPhoto.getHeight();
-                    double percentage = slider.getValue() / 100.0;
-                    int pixelsToGroup = (int)(totalArea * percentage);
-                    int blockSize = (int)Math.sqrt(pixelsToGroup);
-                    blockSize = Math.max(1, blockSize); // prevent 0 or negative sizes
 
-                    inputPhoto.pixilate(blockSize);
+                    if(slider.getValue() != 0 ||slider.getValue() != 100 )
+                    {
+                        int totalArea = inputPhoto.getWidth() * inputPhoto.getHeight();
+                        double percentage = slider.getValue() / 100.0;
+                        int pixelsToGroup = (int)(totalArea * percentage);
+                        int blockSize = (int)Math.sqrt(pixelsToGroup);
+                        blockSize = Math.max(1, blockSize); 
+
+                        inputPhoto.pixilate(blockSize);
+                    }
+                    else if(slider.getValue() == 0 ) //no changes 
+                    {
+                        inputPhoto.pixilate(0); // there will be an if loop that catches this in PixelatedPhoto.java
+                        sliderZero = false;
+                    }
+                    else if(slider.getValue() == 100) //only return one pixel 
+                    {
+                        inputPhoto.pixilate(-1); // there will be an if loop that catches this in PixelatedPhoto.java
+                    }
                     refresh();
                 }
             }
@@ -214,6 +236,7 @@ public class Pixilate {
                 newPhotoImage = null;
             }
         }
+
         Boolean addedPixilatedPhoto = false; 
         if (pixilatePressed == true) //if you pressed the pixilate button 
         {
@@ -221,7 +244,7 @@ public class Pixilate {
             pixilatePressed = false; //resets it 
             //adds the photo to pixilated photo make get a little stretched but if you download it it'll be fine 
             ImageIcon icon = new ImageIcon("photos/pixilated.png"); //file location 
-            Image scaledImage = icon.getImage().getScaledInstance((int)(panel.getHeight()*.5), (int)(panel.getWidth()*.5), Image.SCALE_SMOOTH);
+            Image scaledImage = icon.getImage().getScaledInstance((int)(panel.getWidth()*.5), (int)(panel.getHeight()*.5), Image.SCALE_SMOOTH);
             pixilatedPhoto = new JLabel(new ImageIcon(scaledImage));
         }
         else
@@ -242,6 +265,8 @@ public class Pixilate {
        // panel.add(Box.createRigidArea(new Dimension(0, 20)));
         panel.add(pixilateButton);
         //panel.add(Box.createRigidArea(new Dimension(0, 20)));
+        
+        //import button pressed 
         if(addedNewPhoto && addedNewPhoto != null) //if you added the new photo it goes here
         {
             newPhotoImage.setAlignmentX(Component.CENTER_ALIGNMENT);
@@ -249,12 +274,13 @@ public class Pixilate {
             panel.add(newPhotoImage); 
             addedNewPhoto = false;
         }
-        else if(newPhotoImage != null && newPhotoImage.getParent() != null)
+        else if(newPhotoImage != null && newPhotoImage.getParent() != null) //import button not pressed
         {
             panel.remove(newPhotoImage);
             newPhotoImage = null;
         }
 
+        //pixilate pressed 
         if(addedPixilatedPhoto && pixilatedPhoto != null) //adds the now pixilated image
         {
             pixilatedPhoto.setAlignmentX(Component.CENTER_ALIGNMENT);
@@ -263,7 +289,7 @@ public class Pixilate {
             panel.add(downloadButton);
             addedPixilatedPhoto = false;
         }
-        else if(pixilatedPhoto != null && pixilatedPhoto.getParent() != null)
+        else if(pixilatedPhoto != null && pixilatedPhoto.getParent() != null) //pixilate not pressed
         {
             panel.remove(pixilatedPhoto);
             panel.remove(downloadButton);
