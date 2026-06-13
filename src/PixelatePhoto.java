@@ -9,7 +9,7 @@ import javax.imageio.ImageIO;
 public class PixelatePhoto 
 {
     private BufferedImage img;
-    private File inputFile; // the orignal img
+    private File inputFile; // the orignal imgage
     private int height; // the height of the image 
     private int width; //the width
     private int blockSize; //blockSize
@@ -133,53 +133,92 @@ public class PixelatePhoto
         this.width = img.getWidth();
         this.height = img.getHeight();
 
-        
-        if (img == null) 
+        //this ensures that there isn't an out of bounds error
+        //HAS TO BE OUTSIDE OF IF & ELSE STATEMENTS 
+
+        BufferedImage pixilated = new BufferedImage(1, 1, BufferedImage.TYPE_INT_ARGB); //default Also makes it not throw errors
+        if(blockSize != -1)
+        {   
+            int blocksWide = (int) Math.ceil(width / (double) blockSize);
+            int blocksHigh = (int) Math.ceil(height / (double) blockSize);
+            pixilated = new BufferedImage(blocksWide, blocksHigh, BufferedImage.TYPE_INT_ARGB);
+        }
+
+
+        //base cases
+        if (img == null) //null check
         {
             System.out.println("Image not loaded correctly");
             return;
         }
 
-        //this ensures that there isn't an out of bounds error 
-        int blocksWide = (int) Math.ceil(width / (double) blockSize);
-        int blocksHigh = (int) Math.ceil(height / (double) blockSize);
-        BufferedImage pixilated = new BufferedImage(blocksWide, blocksHigh, BufferedImage.TYPE_INT_ARGB);
-
-        //giant loop that goes through the pixels
-        for (int y = 0; y < height; y += blockSize) //TODO: right now this is O(n^3) make it run faster
+        if(blockSize == 0) //no changes return default image
         {
-            for (int x = 0; x < width; x += blockSize) 
+            //techinally this shouldn't change anything but due to how the image is resized it changes
+            return;
+        }
+        else if(blockSize == -1) // return only one pixel does 100% of the image
+        {
+            long sumR = 0, sumG = 0, sumB = 0; // sums of all RBG values
+            for(int y=0;  y < height; y++)
             {
-                long sumR = 0, sumG = 0, sumB = 0;
-                
-                int pixelSize = 0;
-                for (int dy = 0; dy < blockSize; dy++) {
-                    for (int dx = 0; dx < blockSize; dx++) {
-                        int pxX = x + dx;
-                        int pxY = y + dy;
+                for(int x = 0; x < width; x++)
+                {
+                    //get the RGB values
+                    int p = img.getRGB(x, y);
+                    Color c = new Color(p);
 
-                        if (pxX < width && pxY < height) {
-                            int px = img.getRGB(pxX, pxY);
-                            Color c = new Color(px);
-                            sumR += c.getRed();
-                            sumG += c.getGreen();
-                            sumB += c.getBlue();
-                            pixelSize++; // this makes it so it doesn't add pixels that are out of bounds
+                    //add to the sum 
+                    sumR += c.getRed();
+                    sumG += c.getGreen();
+                    sumB += c.getBlue();
+                }
+            }
+            //gets the avarages 
+            int avgR = (int)(sumR);
+            int avgG = (int)(sumG);
+            int avgB = (int)(sumB);
+
+            Color avgColor = new Color(avgR, avgG, avgB); //avarages out the color
+            pixilated.setRGB(1, 1, avgColor.getRGB()); //sets the color
+        }
+        else // when there is an input that isnt -1 or 0
+        {
+            //giant loop that goes through the pixels
+            for (int y = 0; y < height; y += blockSize) //TODO: right now this is O(n^3) make it run faster
+            {
+                for (int x = 0; x < width; x += blockSize) 
+                {
+                    long sumR = 0, sumG = 0, sumB = 0;
+                    
+                    int pixelSize = 0;
+                    for (int dy = 0; dy < blockSize; dy++) {
+                        for (int dx = 0; dx < blockSize; dx++) {
+                            int pxX = x + dx;
+                            int pxY = y + dy;
+
+                            if (pxX < width && pxY < height) {
+                                int px = img.getRGB(pxX, pxY);
+                                Color c = new Color(px);
+                                sumR += c.getRed();
+                                sumG += c.getGreen();
+                                sumB += c.getBlue();
+                                pixelSize++; // this makes it so it doesn't add pixels that are out of bounds
+                            }
                         }
                     }
+
+                    
+                    //gets the avarages 
+                    int avgR = (int)(sumR / pixelSize);
+                    int avgG = (int)(sumG / pixelSize);
+                    int avgB = (int)(sumB / pixelSize);
+
+                    Color avgColor = new Color(avgR, avgG, avgB); //avarages out the color
+                    pixilated.setRGB(x / blockSize, y / blockSize, avgColor.getRGB()); //sets the color
                 }
-
-                
-                //gets the avarages 
-                int avgR = (int)(sumR / pixelSize);
-                int avgG = (int)(sumG / pixelSize);
-                int avgB = (int)(sumB / pixelSize);
-
-                Color avgColor = new Color(avgR, avgG, avgB); //avarages out the color
-                pixilated.setRGB(x / blockSize, y / blockSize, avgColor.getRGB()); //sets the color
             }
         }
-
         //saves the image 
         try {
             File f = new File("photos/pixilated.png");
