@@ -86,11 +86,20 @@ public class Pixilate {
         downloadButton = new JButton("DOWNLOAD");
         downloadButton.setAlignmentX(Component.CENTER_ALIGNMENT);
 
-        //slider
-        int[] sliderValues = {5, 10, 15, 20, 25, 30, 35, 40, 45, 50, 55, 60, 65, 70, 75, 80, 85, 90, 95, 100};
+        // slider stuff
+
+        //this will start out really small to get an exponential size increase  
+        double[] sliderValues = { 
+            0, .001, .01, .1, .2, .3, .4, .5, 1, 2, 5, 10, 15, 20, 25, 30, 35, 40, 45, 50,
+            55, 60, 65, 70, 75, 80, 85, 90, 95, 100
+        };
+
         slider = new JSlider(0, sliderValues.length - 1);
+
+        slider.setMajorTickSpacing(1);
         slider.setPaintTicks(true);
         slider.setSnapToTicks(true);
+        //slider.setPaintLabels(true); 
 
         Hashtable<Integer, JLabel> labelTable = new Hashtable<>();
         for (int i = 0; i < sliderValues.length; i++) {
@@ -145,7 +154,7 @@ public class Pixilate {
                 {
                     pixilatePressed = true;
                     int totalArea = inputPhoto.getWidth() * inputPhoto.getHeight();
-                    double percentage = slider.getValue() / 100.0;
+                    double percentage = sliderValues[slider.getValue()] / 100.0;
                     int pixelsToGroup = (int)(totalArea * percentage);
                     int blockSize = (int)Math.sqrt(pixelsToGroup);
                     blockSize = Math.max(1, blockSize); // prevent 0 or negative sizes

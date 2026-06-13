@@ -1,8 +1,9 @@
+import java.awt.Color;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
+
 import javax.imageio.ImageIO;
-import java.awt.Color;
 //https://www.geeksforgeeks.org/java/image-processing-in-java-get-and-set-pixels/
 
 public class PixelatePhoto 
