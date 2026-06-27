@@ -90,22 +90,15 @@ public class Pixilate {
         downloadButton = new JButton("DOWNLOAD");
         downloadButton.setAlignmentX(Component.CENTER_ALIGNMENT);
 
-<<<<<<< HEAD
         // slider stuff
 
         //this will start out really small to get an exponential size increase  
         double[] sliderValues = { 
-            0, .001, .01, .1, .2, .3, .4, .5, 1, 2, 5, 10, 15, 20, 25, 30, 35, 40, 45, 50,
+            0, .0001, .001, .01, .1, .2, .3, .4, .5, 1, 2, 5, 10, 15, 20, 25, 30, 35, 40, 45, 50,
             55, 60, 65, 70, 75, 80, 85, 90, 95, 100
         };
 
-=======
-        //slider
-        int[] sliderValues = 
-        {
-            0, 1, 2, 3, 4, 5, 9, 10, 15, 17, 20, 25, 30, 35, 40, 45, 50, 55, 60, 65, 70, 75, 80, 85, 90, 95, 100, 
-        };
->>>>>>> 633bbe976dee17d8e626531b1939337afffbb3cd
+
         slider = new JSlider(0, sliderValues.length - 1);
 
         slider.setMajorTickSpacing(1);
@@ -163,25 +156,29 @@ public class Pixilate {
 
             public void actionPerformed(ActionEvent e)
             {
+                int totalArea;
+                double percentage;
+                int pixelsToGroup;
+                int blockSize;
+
                 if(inputPhoto.getInputFile() != null)
                 {
                     System.out.println("SliderValue: " + slider.getValue());
                     pixilatePressed = true;
-<<<<<<< HEAD
-                    int totalArea = inputPhoto.getWidth() * inputPhoto.getHeight();
-                    double percentage = sliderValues[slider.getValue()] / 100.0;
-                    int pixelsToGroup = (int)(totalArea * percentage);
-                    int blockSize = (int)Math.sqrt(pixelsToGroup);
+
+                    totalArea = inputPhoto.getWidth() * inputPhoto.getHeight();
+                    percentage = sliderValues[slider.getValue()] / 100.0;
+                    pixelsToGroup = (int)(totalArea * percentage);
+                    blockSize = (int)Math.sqrt(pixelsToGroup);
                     blockSize = Math.max(1, blockSize); // prevent 0 or negative sizes
-=======
->>>>>>> 633bbe976dee17d8e626531b1939337afffbb3cd
+
 
                     if(slider.getValue() != 0 ||slider.getValue() != 100 )
                     {
-                        int totalArea = inputPhoto.getWidth() * inputPhoto.getHeight();
-                        double percentage = slider.getValue() / 100.0;
-                        int pixelsToGroup = (int)(totalArea * percentage);
-                        int blockSize = (int)Math.sqrt(pixelsToGroup);
+                        totalArea = inputPhoto.getWidth() * inputPhoto.getHeight();
+                        percentage = slider.getValue() / 100.0;
+                        pixelsToGroup = (int)(totalArea * percentage);
+                        blockSize = (int)Math.sqrt(pixelsToGroup);
                         blockSize = Math.max(1, blockSize); 
 
                         inputPhoto.pixilate(blockSize);

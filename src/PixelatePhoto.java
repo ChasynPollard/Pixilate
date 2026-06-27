@@ -154,7 +154,14 @@ public class PixelatePhoto
 
         if(blockSize == 0) //no changes return default image
         {
-            //techinally this shouldn't change anything but due to how the image is resized it changes
+            //copies and pastes the img given to pixilated.png so we can see nothing changes
+            try{
+                File f = new File("photos/pixilated.png");
+                ImageIO.write(img, "PNG", f);
+            }
+            catch (IOException e) {
+                System.out.println("Error saving image: " + e);
+            }
             return;
         }
         else if(blockSize == -1) // return only one pixel does 100% of the image
